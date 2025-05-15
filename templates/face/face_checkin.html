@@ -1,0 +1,179 @@
+{% extends '_extends/base.html' %}
+{% load static %}
+{% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
+{% block content %}
+<section class="mt-5">
+  <div class="container text-center">
+    <div style="position: relative; display: inline-block;">
+      <video id="video" width="640" height="480" autoplay muted playsinline style="border-radius: 12px;"></video>
+      <canvas id="overlay" width="640" height="480" style="position: absolute; top: 0; left: 0;"></canvas>
+    </div>
+
+    <!-- Статус распознавания -->
+    <div id="status" style="margin-top: 15px; font-size: 20px; font-weight: bold;">
+      {% if LANGUAGE_CODE == 'ru' %}
+      🔵 Камера активна. Ожидание лица...
+      {% elif LANGUAGE_CODE == 'EN' %}
+      🔵 Camera active. Waiting for face...
+      {% else %}
+      🔵 Kamera faol. Yuzni kutish...
+      {% endif %}
+    </div>
+  </div>
+</section>
+
+<!-- face-api.js -->
+<script defer src="{% static 'face/js/face-api.min.js' %}"></script>
+
+<script>
+  document.addEventListener('DOMContentLoaded', () => {
+    if (typeof faceapi === 'undefined') {
+      console.error('❌ faceapi не загружен!');
+      return;
+    }
+    run();
+  });
+</script>
+
+<script>
+  const video = document.getElementById('video');
+  const canvas = document.getElementById('overlay');
+  const ctx = canvas.getContext('2d');
+  const statusBox = document.getElementById('status');
+
+  let processing = false;
+  let statusResetTimeout = null;
+
+  async function startCamera() {
+    try {
+      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+      video.srcObject = stream;
+    } catch (err) {
+      console.error("Ошибка доступа к камере: ", err);
+    }
+  }
+
+  async function loadModels() {
+    const MODEL_URL = "{% static 'models' %}";
+
+    try {
+      await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+      await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+      await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+    } catch (err) {
+      console.error("❌ Ошибка загрузки моделей:", err);
+    }
+  }
+
+  function getCookie(name) {
+    const value = `; ${document.cookie}`;
+    const parts = value.split(`; ${name}=`);
+    if (parts.length === 2) return parts.pop().split(';').shift();
+  }
+
+  function captureFrame() {
+    const tempCanvas = document.createElement('canvas');
+    tempCanvas.width = video.videoWidth;
+    tempCanvas.height = video.videoHeight;
+    const ctx = tempCanvas.getContext('2d');
+    ctx.drawImage(video, 0, 0);
+    return tempCanvas.toDataURL('image/jpeg');
+  }
+
+  function updateStatus(text, color, duration = null) {
+  statusBox.textContent = text;
+  statusBox.style.color = color;
+
+  if (duration !== null) {
+    if (statusResetTimeout) clearTimeout(statusResetTimeout);
+
+    statusResetTimeout = setTimeout(() => {
+      statusBox.textContent = "🔵 Камера активна. Ожидание лица...";
+      statusBox.style.color = 'blue';
+      statusResetTimeout = null;
+    }, duration);
+  }
+}
+
+  async function verifyFace(box) {
+    if (processing) return;
+    processing = true;
+
+    updateStatus("🟡 Проверка лица...", 'orange');
+
+    const imageData = captureFrame();
+
+    try {
+      const res = await fetch('/verify-face/', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+          'X-CSRFToken': getCookie('csrftoken')
+        },
+        body: JSON.stringify({ image: imageData })
+      });
+
+      const result = await res.json();
+
+      ctx.strokeStyle = result.success ? 'green' : 'red';
+      ctx.lineWidth = 3;
+      ctx.strokeRect(box.x, box.y, box.width, box.height);
+
+      if (result.success) {
+        const message = result.already_checked_in
+          ? `✅ Уже отмечен сегодня: ${result.user}`
+          : `✅ Распознан: ${result.user}, время: ${result.timestamp}`;
+        const color = result.already_checked_in ? 'blue' : 'green';
+        const duration = result.already_checked_in ? 3000 : 2000;  // ← Разные таймауты
+        updateStatus(message, color, duration);
+      } else {
+        updateStatus("🔴 Лицо не распознано", 'red', 4000);  // ← Подольше, чтобы пользователь успел заметить
+      }
+
+    } catch (err) {
+      console.error('Ошибка при отправке:', err);
+      updateStatus("🔴 Ошибка распознавания", 'red');
+    }
+
+    setTimeout(() => {
+      processing = false;
+    }, 3000);
+  }
+
+  async function run() {
+    await loadModels();
+    await startCamera();
+
+    video.addEventListener('playing', () => {
+      const displaySize = { width: video.width, height: video.height };
+      faceapi.matchDimensions(canvas, displaySize);
+
+      setInterval(async () => {
+        const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions());
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        if (detections.length > 0) {
+          updateStatus("🟡 Лицо найдено, проверка...", 'orange');
+
+          const resizedDetections = faceapi.resizeResults(detections, displaySize);
+          resizedDetections.forEach((detection, i) => {
+            const box = detection.box;
+            ctx.strokeStyle = 'yellow';
+            ctx.lineWidth = 2;
+            ctx.strokeRect(box.x, box.y, box.width, box.height);
+
+            if (i === 0 && !processing) {
+              verifyFace(box);
+            }
+          });
+        } else {
+          if (!processing) {
+            updateStatus("🔵 Камера активна. Ожидание лица...", 'blue');
+          }
+        }
+      }, 1000);
+    });
+  }
+</script>
+{% endblock %}

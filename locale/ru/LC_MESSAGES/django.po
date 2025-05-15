@@ -1,0 +1,188 @@
+# SOME DESCRIPTIVE TITLE.
+# Copyright (C) YEAR THE PACKAGE'S COPYRIGHT HOLDER
+# This file is distributed under the same license as the PACKAGE package.
+# FIRST AUTHOR <EMAIL@ADDRESS>, YEAR.
+#
+#, fuzzy
+msgid ""
+msgstr ""
+"Project-Id-Version: PACKAGE VERSION\n"
+"Report-Msgid-Bugs-To: \n"
+"POT-Creation-Date: 2025-05-15 10:51+0500\n"
+"PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
+"Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
+"Language-Team: LANGUAGE <LL@li.org>\n"
+"Language: \n"
+"MIME-Version: 1.0\n"
+"Content-Type: text/plain; charset=UTF-8\n"
+"Content-Transfer-Encoding: 8bit\n"
+"Plural-Forms: nplurals=4; plural=(n%10==1 && n%100!=11 ? 0 : n%10>=2 && "
+"n%10<=4 && (n%100<12 || n%100>14) ? 1 : n%10==0 || (n%10>=5 && n%10<=9) || "
+"(n%100>=11 && n%100<=14)? 2 : 3);\n"
+#: .\apps\face\models.py:17
+msgid "Регистрация пользователя"
+msgstr ""
+
+#: .\apps\face\models.py:18
+msgid "Регистрация пользователей"
+msgstr ""
+
+#: .\apps\face\models.py:68
+msgid "Проверка пользователя"
+msgstr ""
+
+#: .\apps\face\models.py:69
+msgid "Проверка пользователей"
+msgstr ""
+
+#: .\templates\_extends\base.html:10 .\templates\face\registration.html:6
+msgid "Registration"
+msgstr "Регистрация"
+
+#: .\templates\face\registration.html:15
+msgid "Форма регистрации"
+msgstr ""
+
+#: .\templates\face\registration.html:20
+msgid "Роль участия"
+msgstr ""
+
+#: .\templates\face\registration.html:22
+msgid "Выберите роль участия"
+msgstr ""
+
+#: .\templates\face\registration.html:23
+msgid "Attendee"
+msgstr "Участник"
+
+#: .\templates\face\registration.html:24
+msgid "Speaker"
+msgstr "Спикер"
+
+#: .\templates\face\registration.html:25
+msgid "Moderator"
+msgstr "Модератор"
+
+#: .\templates\face\registration.html:26
+msgid "Official"
+msgstr "Должностное лицо"
+
+#: .\templates\face\registration.html:27
+msgid "Media"
+msgstr "Медиа"
+
+#: .\templates\face\registration.html:28
+msgid "Staff"
+msgstr "Персонал"
+
+#: .\templates\face\registration.html:34
+msgid "Имя"
+msgstr ""
+
+#: .\templates\face\registration.html:38
+msgid "Фамилия"
+msgstr ""
+
+#: .\templates\face\registration.html:45
+msgid "Дата рождения"
+msgstr ""
+
+#: .\templates\face\registration.html:50
+msgid "Пол"
+msgstr ""
+
+#: .\templates\face\registration.html:52
+msgid "Выберите Пол"
+msgstr ""
+
+#: .\templates\face\registration.html:53
+msgid "Мужчина"
+msgstr ""
+
+#: .\templates\face\registration.html:54
+msgid "Женщина"
+msgstr ""
+
+#: .\templates\face\registration.html:61
+msgid "Электронная почта"
+msgstr ""
+
+#: .\templates\face\registration.html:65
+msgid "Мобильный телефон"
+msgstr ""
+
+#: .\templates\face\registration.html:72
+msgid "Паспорт ID"
+msgstr ""
+
+#: .\templates\face\registration.html:76
+msgid "Страна"
+msgstr ""
+
+#: .\templates\face\registration.html:83
+msgid "Место рождения"
+msgstr ""
+
+#: .\templates\face\registration.html:87
+msgid "Адрес проживания"
+msgstr ""
+
+#: .\templates\face\registration.html:94
+msgid "Организация"
+msgstr ""
+
+#: .\templates\face\registration.html:98
+msgid "Должность"
+msgstr ""
+
+#: .\templates\face\registration.html:105
+msgid "Загрузите копию вашего паспорта"
+msgstr ""
+
+#: .\templates\face\registration.html:109
+msgid "Загрузите свое фото"
+msgstr ""
+
+#: .\templates\face\registration.html:112
+msgid "Taken within the last 6 months"
+msgstr "Сделано в течение последних 6 месяцев"
+
+#: .\templates\face\registration.html:113
+msgid "Clear view of your face"
+msgstr "Четкий обзор вашего лица"
+
+#: .\templates\face\registration.html:114
+msgid "Natural, unedited (no filters or AI)"
+msgstr "Натуральный, нередактированный (без фильтров и ИИ)"
+
+#: .\templates\face\registration.html:115
+msgid "Taken by someone else (not a selfie)"
+msgstr "Снято кем-то другим (не селфи)"
+
+#: .\templates\face\registration.html:116
+msgid "Without glasses"
+msgstr "Без очков"
+
+#: .\templates\face\registration.html:117
+msgid "Plain white background (no shadows or textures)"
+msgstr "Простой белый фон (без теней и текстур)"
+
+#: .\templates\face\registration.html:122
+msgid "Нажимая кнопку «отправить» вы подтверждаете своё согласие обработки информации"
+msgstr ""
+
+#: .\templates\face\registration.html:126
+msgid "Отправить"
+msgstr ""
+
+#: .\templates\face\success_page.html:134
+msgid "Успешно"
+msgstr ""
+
+#: .\templates\face\success_page.html:137
+msgid "Вы зарегистрировались"
+msgstr ""
+
+#: .\templates\face\success_page.html:141
+msgid "Вернуться на главную"
+msgstr ""

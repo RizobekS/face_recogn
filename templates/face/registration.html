@@ -1,0 +1,200 @@
+{% extends '_extends/base.html' %}
+{% load static %}
+{% load i18n %}
+{% get_current_language as LANGUAGE_CODE %}
+{% load humanize %}
+
+{% block title %}{% trans 'Registration' %} {% endblock title %}
+{% block content %}
+
+<section class="vh-100 gradient-custom ">
+    <div class="container py-5 h-100">
+        <div class="row justify-content-center align-items-center h-100">
+            <div class="col-12 col-lg-9 col-xl-7">
+                <div class="card shadow-2-strong card-registration" style="border-radius: 15px;">
+                    <div class="card-body p-4 p-md-5">
+                        <h3 class="mb-4 pb-2 pb-md-0 mb-md-5 text-primary">{% trans 'Форма регистрации' %}</h3>
+                        <form action="{% url 'face:registration' %}" method="post" id="myForm"
+                              enctype="multipart/form-data" data-lang="{{ LANGUAGE_CODE }}">{% csrf_token %}
+
+                            <div class="mb-4 pb-2">
+                                {% trans 'Роль участия' %}:
+                                <select data-mdb-select-init name="participation_role" class="form-control form-select form-control-lg" required>
+                                    <option value="0">{% trans 'Выберите роль участия' %}</option>
+                                    <option value="attendee">{% trans 'Attendee' %}</option>
+                                    <option value="speaker">{% trans 'Speaker' %}</option>
+                                    <option value="moderator">{% trans 'Moderator' %}</option>
+                                    <option value="official">{% trans 'Official' %}</option>
+                                    <option value="media">{% trans 'Media' %}</option>
+                                    <option value="staff">{% trans 'Staff' %}</option>
+                                </select>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 col-lg-6 col-12 mb-4 custom_form_input">
+                                    {% trans 'Имя' %}:
+                                    <input name="first_name" type="text" class="form-control" required>
+                                </div>
+                                <div class="col-md-6 col-lg-6 col-12 mb-4 custom_form_input">
+                                    {% trans 'Фамилия' %}:
+                                    <input name="last_name" type="text" class="form-control" required>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 col-lg-6 col-12 mb-4 custom_form_input">
+                                    {% trans 'Дата рождения' %}:
+                                    <input name="date_of_birth" type="date" class="form-control" required>
+                                </div>
+
+                                <div class="col-md-6 col-lg-6 col-12 mb-4 custom_form_input">
+                                    {% trans 'Пол' %}:
+                                    <select class="form-select" name="personal_gender" required>
+                                        <option value="0">{% trans 'Выберите Пол' %}</option>
+                                        <option value="male">{% trans 'Мужчина' %}</option>
+                                        <option value="female">{% trans 'Женщина' %}</option>
+                                    </select>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 col-lg-6 col-12 mb-4 custom_form_input">
+                                    {% trans 'Электронная почта' %}:
+                                    <input name="user_email" type="email" class="form-control" required>
+                                </div>
+                                <div class="col-md-6 col-lg-6 col-12 mb-4 custom_form_input">
+                                    {% trans 'Мобильный телефон' %}:
+                                    <input name="mobile_number" type="number" class="form-control" required>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 col-lg-6 col-12 mb-4 custom_form_input">
+                                    {% trans 'Паспорт ID' %}:
+                                    <input name="passport_id" type="text" class="form-control" required>
+                                </div>
+                                <div class="col-md-6 col-lg-6 col-12 mb-4 custom_form_input">
+                                    {% trans 'Страна' %}:
+                                    <input name="country" type="text" class="form-control" required>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 col-lg-6 col-12 mb-4 custom_form_input">
+                                    {% trans 'Место рождения' %}:
+                                    <input name="place_of_birth" type="text" class="form-control" required>
+                                </div>
+                                <div class="col-md-6 col-lg-6 col-12 mb-4 custom_form_input">
+                                    {% trans 'Адрес проживания' %}:
+                                    <input name="living_address" type="text" class="form-control" required>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 col-lg-6 col-12 mb-4 custom_form_input">
+                                    {% trans 'Организация' %}:
+                                    <input name="organization" type="text" class="form-control" required>
+                                </div>
+                                <div class="col-md-6 col-lg-6 col-12 mb-4 custom_form_input">
+                                    {% trans 'Должность' %}:
+                                    <input name="position" type="text" class="form-control" required>
+                                </div>
+                            </div>
+
+                            <div class="row">
+                                <div class="col-md-6 col-lg-6 col-12 mb-4 custom_form_input">
+                                    {% trans 'Загрузите копию вашего паспорта' %}:
+                                    <input name="passport_copy" type="file" accept="image/png, image/jpeg, impage/jpg" class="form-control" required>
+                                </div>
+                                <div class="col-md-6 col-lg-6 col-12 mb-4 custom_form_input">
+                                    {% trans 'Загрузите свое фото' %}:
+                                    <input name="user_photo" type="file" accept="image/png, image/jpeg, impage/jpg" class="form-control" required>
+                                    <ul class="mt-3">
+                                        <li>{% trans 'Taken within the last 6 months' %}</li>
+                                        <li>{% trans 'Clear view of your face' %}</li>
+                                        <li>{% trans 'Natural, unedited (no filters or AI)' %}</li>
+                                        <li>{% trans 'Taken by someone else (not a selfie)' %}</li>
+                                        <li>{% trans 'Without glasses' %}</li>
+                                        <li>{% trans 'Plain white background (no shadows or textures)' %}</li>
+                                    </ul>
+                                    <div class="col-12">
+                                        <img src="{% static 'face/img/photo-req.webp' %}" alt="example-photo" class="img-fluid">
+                                    </div>
+                                </div>
+                            </div>
+
+                            <p class="text-center">{% trans 'Нажимая кнопку «отправить» вы подтверждаете своё согласие обработки информации' %}</p>
+                            <div class="d-flex justify-content-center">
+                                <button onclick="validateInputs()" type="submit" value="Register"
+                                        class="btn mb-3 mt-2 btn-primary rounded-7">
+                                    {% trans 'Отправить' %}
+                                </button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+
+<script>
+    function getLocalizedMessage(key, lang) {
+        const messages = {
+            'select_role_error': {
+                'ru': 'Пожалуйста, выберите роль участия.',
+                'uz': 'Iltimos, ishtirok rolini tanlang.',
+                'en': 'Please select a participation role.'
+            },
+            'select_gender_error': {
+                'ru': 'Пожалуйста, выберите пол.',
+                'uz': 'Iltimos, jinsingizni tanlang.',
+                'en': 'Please select your gender.'
+            }
+        };
+        return messages[key][lang] || messages[key]['ru'];
+    }
+
+    function validateInputs(event) {
+        const form = document.getElementById("myForm");
+        const lang = form.dataset.lang || 'ru';
+
+        let isValid = true;
+
+        const participationSelect = document.querySelector('[name="participation_role"]');
+        const genderSelect = document.querySelector('[name="personal_gender"]');
+
+        // Удалим предыдущие сообщения
+        document.querySelectorAll('.select-error').forEach(e => e.remove());
+
+        if (participationSelect.value === "0") {
+            showError(participationSelect, getLocalizedMessage('select_role_error', lang));
+            isValid = false;
+        }
+
+        if (genderSelect.value === "0") {
+            showError(genderSelect, getLocalizedMessage('select_gender_error', lang));
+            isValid = false;
+        }
+
+        if (!isValid) {
+            event.preventDefault();
+        }
+    }
+
+    function showError(selectElement, message) {
+        const error = document.createElement("div");
+        error.className = "select-error text-danger mt-2";
+        error.textContent = message;
+        selectElement.closest('.mb-4, .custom_form_input').appendChild(error);
+    }
+
+    document.addEventListener("DOMContentLoaded", function () {
+        document.getElementById("myForm").addEventListener("submit", validateInputs);
+    });
+</script>
+
+
+
+{% endblock content %}
