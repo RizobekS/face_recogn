@@ -4,176 +4,290 @@
 {% get_current_language as LANGUAGE_CODE %}
 {% block content %}
 <section class="mt-5">
-  <div class="container text-center">
-    <div style="position: relative; display: inline-block;">
-      <video id="video" width="640" height="480" autoplay muted playsinline style="border-radius: 12px;"></video>
-      <canvas id="overlay" width="640" height="480" style="position: absolute; top: 0; left: 0;"></canvas>
-    </div>
+    <div class="container-fluid text-center">
+        <div class="row d-flex justify-content-around my-3">
+            <div class="shadow-2-strong gradient-custom-white blur mask-custom col-12 col-sm-6 col-md-5 border border-primary rounded-7 p-2 my-2"> <!--для динамического показа фото пользователя-->
+                <img id="user-photo-main" src="{% static 'face/img/blue-user-icon-32.jpg' %}" class="img-fluid" alt="Фото пользователя"
+                 style="width: 150px; height: 150px; object-fit: cover; border-radius: 8px; border: 2px solid #ccc; margin-bottom: 10px;">
+            </div>
+            <div class="shadow-2-strong gradient-custom-white d-flex align-items-center text-start blur mask-custom col-12 col-sm-6 col-md-5 border border-primary rounded-7 p-2 my-2"> <!--для динамического показа ФИО и ID пользователя-->
+                <div id="" class="">
+                        <h2 class="text-white me-2">{% trans 'User name' %}: <span class="text-white"
+                                                                                   id="user-fullname"></span></h2>
+                        <h2 class="text-white me-2">{% trans 'ID user' %}: <span class="text-white" id="user-id"></span>
+                        </h2>
+                </div>
+            </div>
+        </div>
+        <div id="verified-users-list" class="shadow-2-strong gradient-custom-white blur mask-custom scrollmenu border border-primary rounded-7 p-2 my-2" style="height: 190px;">
+            <!-- Сюда будут добавляться <img> элементы -->
+        </div>
+        <div style="position: relative; display: inline-block;">
+            <video id="video" width="640" height="480" autoplay muted playsinline style="border-radius: 12px;"></video>
+            <canvas id="overlay" width="640" height="480" style="position: absolute; top: 0; left: 0;"></canvas>
+            <!-- Audio for success -->
+            <audio id="success-sound" src="{% static 'face/sounds/success.mp3' %}" preload="auto"></audio>
+        </div>
 
-    <!-- Статус распознавания -->
-    <div id="status" style="margin-top: 15px; font-size: 20px; font-weight: bold;">
-      {% if LANGUAGE_CODE == 'ru' %}
-      🔵 Камера активна. Ожидание лица...
-      {% elif LANGUAGE_CODE == 'EN' %}
-      🔵 Camera active. Waiting for face...
-      {% else %}
-      🔵 Kamera faol. Yuzni kutish...
-      {% endif %}
+        <!-- Статус распознавания -->
+        <div id="status" class="text-white" style="margin-top: 15px; font-size: 20px; font-weight: bold;">
+            {% if LANGUAGE_CODE == 'ru' %}
+            🔵 Камера активна. Ожидание лица...
+            {% elif LANGUAGE_CODE == 'EN' %}
+            🔵 Camera active. Waiting for face...
+            {% else %}
+            🔵 Kamera faol. Yuzni kutish...
+            {% endif %}
+        </div>
     </div>
-  </div>
 </section>
 
 <!-- face-api.js -->
 <script defer src="{% static 'face/js/face-api.min.js' %}"></script>
 
 <script>
-  document.addEventListener('DOMContentLoaded', () => {
-    if (typeof faceapi === 'undefined') {
-      console.error('❌ faceapi не загружен!');
-      return;
-    }
-    run();
-  });
+    document.addEventListener('DOMContentLoaded', () => {
+      if (typeof faceapi === 'undefined') {
+        console.error('❌ faceapi не загружен!');
+        return;
+      }
+      run();
+    });
 </script>
 
 <script>
-  const video = document.getElementById('video');
-  const canvas = document.getElementById('overlay');
-  const ctx = canvas.getContext('2d');
-  const statusBox = document.getElementById('status');
+    const video = document.getElementById('video');
+    const userPhoto = document.getElementById('user-photo');
+    const canvas = document.getElementById('overlay');
+    const ctx = canvas.getContext('2d');
+    const statusBox = document.getElementById('status');
 
-  let processing = false;
-  let statusResetTimeout = null;
+    let processing = false;
+    let statusResetTimeout = null;
 
-  async function startCamera() {
-    try {
-      const stream = await navigator.mediaDevices.getUserMedia({ video: true });
-      video.srcObject = stream;
-    } catch (err) {
-      console.error("Ошибка доступа к камере: ", err);
+    async function startCamera() {
+      try {
+        const stream = await navigator.mediaDevices.getUserMedia({ video: true });
+        video.srcObject = stream;
+      } catch (err) {
+        console.error("Ошибка доступа к камере: ", err);
+      }
+    }
+
+    async function loadModels() {
+      const MODEL_URL = "{% static 'models' %}";
+
+      try {
+        await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
+        await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
+        await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
+      } catch (err) {
+        console.error("❌ Ошибка загрузки моделей:", err);
+      }
+    }
+
+    function getCookie(name) {
+      const value = `; ${document.cookie}`;
+      const parts = value.split(`; ${name}=`);
+      if (parts.length === 2) return parts.pop().split(';').shift();
+    }
+
+    function captureFrame() {
+      const tempCanvas = document.createElement('canvas');
+      tempCanvas.width = video.videoWidth;
+      tempCanvas.height = video.videoHeight;
+      const ctx = tempCanvas.getContext('2d');
+      ctx.drawImage(video, 0, 0);
+      return tempCanvas.toDataURL('image/jpeg');
+    }
+
+    function updateStatus(text, color, duration = null) {
+    statusBox.textContent = text;
+    statusBox.style.color = color;
+
+    if (duration !== null) {
+      if (statusResetTimeout) clearTimeout(statusResetTimeout);
+
+      statusResetTimeout = setTimeout(() => {
+        statusBox.textContent = "🔵 Камера активна. Ожидание лица...";
+        statusBox.style.color = 'blue';
+        statusResetTimeout = null;
+      }, duration);
     }
   }
 
-  async function loadModels() {
-    const MODEL_URL = "{% static 'models' %}";
+    async function verifyFace(box) {
+      if (processing) return;
+      processing = true;
 
-    try {
-      await faceapi.nets.tinyFaceDetector.loadFromUri(MODEL_URL);
-      await faceapi.nets.faceLandmark68Net.loadFromUri(MODEL_URL);
-      await faceapi.nets.faceRecognitionNet.loadFromUri(MODEL_URL);
-    } catch (err) {
-      console.error("❌ Ошибка загрузки моделей:", err);
-    }
-  }
+      updateStatus("🟡 Проверка лица...", 'orange');
 
-  function getCookie(name) {
-    const value = `; ${document.cookie}`;
-    const parts = value.split(`; ${name}=`);
-    if (parts.length === 2) return parts.pop().split(';').shift();
-  }
+      const imageData = captureFrame();
 
-  function captureFrame() {
-    const tempCanvas = document.createElement('canvas');
-    tempCanvas.width = video.videoWidth;
-    tempCanvas.height = video.videoHeight;
-    const ctx = tempCanvas.getContext('2d');
-    ctx.drawImage(video, 0, 0);
-    return tempCanvas.toDataURL('image/jpeg');
-  }
+      try {
+        const res = await fetch('/verify-face/', {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'X-CSRFToken': getCookie('csrftoken')
+          },
+          body: JSON.stringify({ image: imageData })
+        });
 
-  function updateStatus(text, color, duration = null) {
-  statusBox.textContent = text;
-  statusBox.style.color = color;
+        const result = await res.json();
 
-  if (duration !== null) {
-    if (statusResetTimeout) clearTimeout(statusResetTimeout);
+        ctx.strokeStyle = result.success ? 'green' : 'red';
+        ctx.lineWidth = 3;
+        ctx.strokeRect(box.x, box.y, box.width, box.height);
 
-    statusResetTimeout = setTimeout(() => {
-      statusBox.textContent = "🔵 Камера активна. Ожидание лица...";
-      statusBox.style.color = 'blue';
-      statusResetTimeout = null;
-    }, duration);
-  }
-}
+        if (result.success) {
+          // Обновляем фото
+          if (result.photo_url) {
+            document.getElementById('user-photo-main').src = result.photo_url;
+          }
+          if (result.photo_url && result.user_id) {
+            const verifiedList = document.getElementById('verified-users-list');
 
-  async function verifyFace(box) {
-    if (processing) return;
-    processing = true;
+            // Проверим, был ли уже добавлен пользователь по ID
+            if (!document.getElementById(`verified-user-${result.user_id}`)) {
+                const userContainer = document.createElement('div');
+                userContainer.id = `verified-user-${result.user_id}`;
+                userContainer.style.cssText = `
+                    display: inline-block;
+                    text-align: center;
+                    margin: 5px;
+                `;
 
-    updateStatus("🟡 Проверка лица...", 'orange');
+                const img = document.createElement('img');
+                img.src = result.photo_url;
+                img.alt = result.user;
+                img.className = 'img-fluid';
+                img.style.cssText = `
+                    width: 150px;
+                    height: 150px;
+                    object-fit: cover;
+                    border-radius: 8px;
+                    border: 2px solid #ссс;
+                `;
 
-    const imageData = captureFrame();
+                const name = document.createElement('div');
+                name.textContent = result.user;
+                name.style.cssText = `
+                    font-size: 14px;
+                    color: white;
+                    margin-top: 5px;
+                `;
 
-    try {
-      const res = await fetch('/verify-face/', {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-          'X-CSRFToken': getCookie('csrftoken')
-        },
-        body: JSON.stringify({ image: imageData })
-      });
+                userContainer.appendChild(img);
+                userContainer.appendChild(name);
 
-      const result = await res.json();
+                verifiedList.appendChild(userContainer);
+                }
+            }
 
-      ctx.strokeStyle = result.success ? 'green' : 'red';
-      ctx.lineWidth = 3;
-      ctx.strokeRect(box.x, box.y, box.width, box.height);
+          // Обновляем имя и ID
+          if (result.user && result.user_id) {
+            document.getElementById('user-fullname').textContent = `${result.user}`;
+            document.getElementById('user-id').textContent = `${result.user_id}`;
+          }
 
-      if (result.success) {
-        const message = result.already_checked_in
-          ? `✅ Уже отмечен сегодня: ${result.user}`
-          : `✅ Распознан: ${result.user}, время: ${result.timestamp}`;
-        const color = result.already_checked_in ? 'blue' : 'green';
-        const duration = result.already_checked_in ? 3000 : 2000;  // ← Разные таймауты
-        updateStatus(message, color, duration);
-      } else {
-        updateStatus("🔴 Лицо не распознано", 'red', 4000);  // ← Подольше, чтобы пользователь успел заметить
+          // Воспроизвести звук
+          const successSound = document.getElementById('success-sound');
+          successSound.currentTime = 0;
+          successSound.play();
+
+          // Статус
+          const message = result.already_checked_in
+            ? `✅ Уже отмечен сегодня: ${result.user}`
+            : `✅ Распознан: ${result.user}, время: ${result.timestamp}`;
+          const color = result.already_checked_in ? 'blue' : 'green';
+          const duration = result.already_checked_in ? 3000 : 2000;
+          updateStatus(message, color, duration);
+
+          // Анимация появления
+          const photoEl = document.getElementById('user-photo-main');
+          const nameEl = document.getElementById('user-fullname');
+          const idEl = document.getElementById('user-id');
+
+          [photoEl, nameEl, idEl].forEach(el => {
+            el.style.opacity = '0';
+            el.style.transition = 'opacity 0.8s ease-in-out';
+            setTimeout(() => { el.style.opacity = '1'; }, 50);
+          });
+
+          // Через 2 секунды — скрыть данные
+          setTimeout(() => {
+            [photoEl, nameEl, idEl].forEach(el => {
+              el.style.opacity = '0';
+            });
+            setTimeout(() => {
+              photoEl.src = '{% static "face/img/blue-user-icon-32.jpg" %}';
+              nameEl.textContent = '';
+              idEl.textContent = '';
+            }, 800); // После анимации
+          }, 2000);
+
+        } else {
+          updateStatus("🔴 Лицо не распознано", 'red', 4000);
+
+          // Сброс отображения
+          const photoEl = document.getElementById('user-photo-main');
+          const nameEl = document.getElementById('user-fullname');
+          const idEl = document.getElementById('user-id');
+
+          [photoEl, nameEl, idEl].forEach(el => {
+            el.style.opacity = '0';
+          });
+          setTimeout(() => {
+            photoEl.src = "{% static 'face/img/blue-user-icon-32.jpg' %}";
+            nameEl.textContent = '';
+            idEl.textContent = '';
+          }, 800);
+        }
+
+      } catch (err) {
+        console.error('Ошибка при отправке:', err);
+        updateStatus("🔴 Ошибка распознавания", 'red');
       }
 
-    } catch (err) {
-      console.error('Ошибка при отправке:', err);
-      updateStatus("🔴 Ошибка распознавания", 'red');
+      setTimeout(() => {
+        processing = false;
+      }, 3000);
     }
 
-    setTimeout(() => {
-      processing = false;
-    }, 3000);
-  }
+    async function run() {
+      await loadModels();
+      await startCamera();
 
-  async function run() {
-    await loadModels();
-    await startCamera();
+      video.addEventListener('playing', () => {
+        const displaySize = { width: video.width, height: video.height };
+        faceapi.matchDimensions(canvas, displaySize);
 
-    video.addEventListener('playing', () => {
-      const displaySize = { width: video.width, height: video.height };
-      faceapi.matchDimensions(canvas, displaySize);
+        setInterval(async () => {
+          const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions());
+          ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      setInterval(async () => {
-        const detections = await faceapi.detectAllFaces(video, new faceapi.TinyFaceDetectorOptions());
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
+          if (detections.length > 0) {
+            updateStatus("🟡 Лицо найдено, проверка...", 'orange');
 
-        if (detections.length > 0) {
-          updateStatus("🟡 Лицо найдено, проверка...", 'orange');
+            const resizedDetections = faceapi.resizeResults(detections, displaySize);
+            resizedDetections.forEach((detection, i) => {
+              const box = detection.box;
+              ctx.strokeStyle = 'yellow';
+              ctx.lineWidth = 2;
+              ctx.strokeRect(box.x, box.y, box.width, box.height);
 
-          const resizedDetections = faceapi.resizeResults(detections, displaySize);
-          resizedDetections.forEach((detection, i) => {
-            const box = detection.box;
-            ctx.strokeStyle = 'yellow';
-            ctx.lineWidth = 2;
-            ctx.strokeRect(box.x, box.y, box.width, box.height);
-
-            if (i === 0 && !processing) {
-              verifyFace(box);
+              if (i === 0 && !processing) {
+                verifyFace(box);
+              }
+            });
+          } else {
+            if (!processing) {
+              updateStatus("🔵 Камера активна. Ожидание лица...", 'blue');
             }
-          });
-        } else {
-          if (!processing) {
-            updateStatus("🔵 Камера активна. Ожидание лица...", 'blue');
           }
-        }
-      }, 1000);
-    });
-  }
+        }, 1000);
+      });
+    }
 </script>
 {% endblock %}

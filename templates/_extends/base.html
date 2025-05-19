@@ -13,13 +13,14 @@
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet"/>
     <!-- MDB -->
     <link href="{% static '/face/css/mdb.min.css' %}" rel="stylesheet"/>
+    <link href="{% static '/face/css/style.css' %}" rel="stylesheet"/>
 
     <!-- Google Fonts -->
     <link
             href="https://fonts.googleapis.com/css?family=Roboto:300,400,500,700&display=swap"
             rel="stylesheet"/>
 </head>
-<body>
+<body class="gradient-custom">
 <section class="p-3 col-12">
     <div class="container d-flex flex-row-reverse">
         <div class="dropdown">
@@ -73,5 +74,17 @@
 <script type="text/javascript" src="{% static '/face/js/mdb.es.min.js' %}"></script>
 <!--<script type="text/javascript" src="{% static '/face/js/mdb.es.min.js.map' %}"></script>-->
 
+<footer class="text-center text-lg-start text-white"
+        style="background-color: #1c2331"
+>
+
+    <div
+            class="text-center p-3"
+            style="background-color: rgba(0, 0, 0, 0.2)"
+    >
+        Developed by <a class="text-muted " href="https://www.webadiko.uz">WEBadiko</a>
+    </div>
+    <!-- Copyright -->
+</footer>
 </body>
 </html>

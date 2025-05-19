@@ -13,6 +13,7 @@ from django.http import JsonResponse
 from django.shortcuts import render, redirect
 from django.utils.timezone import now
 from django.views.decorators.csrf import csrf_exempt
+from django.views.decorators.http import require_POST
 from django.views.generic import TemplateView
 
 from .models import UserRegistration, CheckIn
@@ -63,22 +64,18 @@ def success_page(request, id):
 def face_check_in(request):
     return render(request, 'face/face_checkin.html')
 
-@csrf_exempt
+@csrf_exempt  # Убери, если используешь CSRF-токен на клиенте
+@require_POST
 def verify_face(request):
-    if request.method != 'POST':
-        return JsonResponse({'success': False, 'error': 'Метод не поддерживается'}, status=405)
-
     try:
         data = json.loads(request.body)
         image_data = data.get('image')
         if not image_data:
             return JsonResponse({'success': False, 'error': 'Нет данных изображения'}, status=400)
 
-        # Удаление base64 заголовка
+        # Удаление заголовка base64 и декодирование
         header, encoded = image_data.split(",", 1)
         image_bytes = base64.b64decode(encoded)
-
-        # Декодирование изображения
         image = Image.open(io.BytesIO(image_bytes)).convert('RGB')
         image_np = np.array(image)
 
@@ -92,21 +89,45 @@ def verify_face(request):
     except Exception as e:
         return JsonResponse({'success': False, 'error': f'Ошибка обработки изображения: {str(e)}'}, status=400)
 
-    # Сравнение с пользователями
-    users = UserRegistration.objects.exclude(face_encoding__isnull=True).only('id', 'face_encoding', 'first_name', 'last_name')
+    # Получаем всех пользователей с сохранённым encoding
+    users = UserRegistration.objects.exclude(face_encoding__isnull=True).only(
+        'id', 'face_encoding', 'first_name', 'last_name', 'user_image'
+    )
+
     for user in users:
-        match = face_recognition.compare_faces([user.face_encoding], unknown_encoding)[0]
-        if match:
-            already_checked_in = CheckIn.objects.filter(user=user, timestamp__date=date.today()).exists()
+        try:
+            known_encoding = np.array(user.face_encoding)
+            match = face_recognition.compare_faces([known_encoding], unknown_encoding, tolerance=0.45)[0]
 
-            if not already_checked_in:
-                CheckIn.objects.create(user=user)
+            if match:
+                already_checked_in = CheckIn.objects.filter(user=user, timestamp__date=date.today()).exists()
 
-            return JsonResponse({
-                'success': True,
-                'user': f"{user.first_name} {user.last_name}",
-                'timestamp': now().isoformat(),
-                'already_checked_in': already_checked_in  # полезно и для фронта
-            })
+                if not already_checked_in:
+                    CheckIn.objects.create(user=user)
+
+                # Получаем список уже прошедших проверку
+                checked_in_users = CheckIn.objects.filter(timestamp__date=date.today()).select_related('user')
+                checked_users_data = [
+                    {
+                        'user_id': checkin.user.id,
+                        'name': f"{checkin.user.first_name} {checkin.user.last_name}",
+                        'photo_url': checkin.user.user_image.url,
+                        'timestamp': checkin.timestamp.isoformat()
+                    }
+                    for checkin in checked_in_users
+                ]
+
+                return JsonResponse({
+                    'success': True,
+                    'user_id': user.id,
+                    'user': f"{user.first_name} {user.last_name}",
+                    'timestamp': now().isoformat(),
+                    'already_checked_in': already_checked_in,
+                    'photo_url': user.user_image.url,
+                    'checked_users': checked_users_data
+                })
+
+        except Exception:
+            continue
 
     return JsonResponse({'success': False, 'error': 'Совпадений не найдено'})
