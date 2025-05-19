@@ -8,7 +8,7 @@ msgid ""
 msgstr ""
 "Project-Id-Version: PACKAGE VERSION\n"
 "Report-Msgid-Bugs-To: \n"
-"POT-Creation-Date: 2025-05-15 10:51+0500\n"
+"POT-Creation-Date: 2025-05-19 12:45+0500\n"
 "PO-Revision-Date: YEAR-MO-DA HO:MI+ZONE\n"
 "Last-Translator: FULL NAME <EMAIL@ADDRESS>\n"
 "Language-Team: LANGUAGE <LL@li.org>\n"
@@ -17,6 +17,7 @@ msgstr ""
 "Content-Type: text/plain; charset=UTF-8\n"
 "Content-Transfer-Encoding: 8bit\n"
 "Plural-Forms: nplurals=2; plural=(n != 1);\n"
+
 #: .\apps\face\models.py:17
 msgid "Регистрация пользователя"
 msgstr "User registration"
@@ -33,143 +34,155 @@ msgstr "User verification"
 msgid "Проверка пользователей"
 msgstr "Users verification"
 
-#: .\templates\_extends\base.html:10 .\templates\face\registration.html:6
+#: .\templates\_extends\base.html:10 .\templates\face\registration.html:7
 msgid "Registration"
 msgstr ""
 
-#: .\templates\face\registration.html:15
+#: .\templates\face\face_checkin.html:15
+msgid "User name"
+msgstr ""
+
+#: .\templates\face\face_checkin.html:17
+msgid "ID user"
+msgstr ""
+
+#: .\templates\face\registration.html:16
 msgid "Форма регистрации"
 msgstr "Registration form"
 
-#: .\templates\face\registration.html:20
+#: .\templates\face\registration.html:21
 msgid "Роль участия"
 msgstr "The role of participation"
 
-#: .\templates\face\registration.html:22
+#: .\templates\face\registration.html:23
 msgid "Выберите роль участия"
 msgstr "Select a participation role"
 
-#: .\templates\face\registration.html:23
+#: .\templates\face\registration.html:24
 msgid "Attendee"
 msgstr ""
 
-#: .\templates\face\registration.html:24
+#: .\templates\face\registration.html:25
 msgid "Speaker"
 msgstr ""
 
-#: .\templates\face\registration.html:25
+#: .\templates\face\registration.html:26
 msgid "Moderator"
 msgstr ""
 
-#: .\templates\face\registration.html:26
+#: .\templates\face\registration.html:27
 msgid "Official"
 msgstr ""
 
-#: .\templates\face\registration.html:27
+#: .\templates\face\registration.html:28
 msgid "Media"
 msgstr ""
 
-#: .\templates\face\registration.html:28
+#: .\templates\face\registration.html:29
 msgid "Staff"
 msgstr ""
 
-#: .\templates\face\registration.html:34
+#: .\templates\face\registration.html:35
 msgid "Имя"
 msgstr "Name"
 
-#: .\templates\face\registration.html:38
+#: .\templates\face\registration.html:39
 msgid "Фамилия"
 msgstr "Surname"
 
-#: .\templates\face\registration.html:45
+#: .\templates\face\registration.html:46
 msgid "Дата рождения"
 msgstr "Date of birth"
 
-#: .\templates\face\registration.html:50
+#: .\templates\face\registration.html:51
 msgid "Пол"
 msgstr "Gender"
 
-#: .\templates\face\registration.html:52
+#: .\templates\face\registration.html:53
 msgid "Выберите Пол"
 msgstr "Select Gender"
 
-#: .\templates\face\registration.html:53
+#: .\templates\face\registration.html:54
 msgid "Мужчина"
 msgstr "Male"
 
-#: .\templates\face\registration.html:54
+#: .\templates\face\registration.html:55
 msgid "Женщина"
 msgstr "Female"
 
-#: .\templates\face\registration.html:61
+#: .\templates\face\registration.html:62
 msgid "Электронная почта"
 msgstr "Email"
 
-#: .\templates\face\registration.html:65
+#: .\templates\face\registration.html:66
 msgid "Мобильный телефон"
 msgstr "Mobile phone"
 
-#: .\templates\face\registration.html:72
+#: .\templates\face\registration.html:73
 msgid "Паспорт ID"
 msgstr "Passport ID"
 
-#: .\templates\face\registration.html:76
+#: .\templates\face\registration.html:77
 msgid "Страна"
 msgstr "Country"
 
-#: .\templates\face\registration.html:83
+#: .\templates\face\registration.html:84
 msgid "Место рождения"
 msgstr "Place of birth"
 
-#: .\templates\face\registration.html:87
+#: .\templates\face\registration.html:88
 msgid "Адрес проживания"
 msgstr "Living address"
 
-#: .\templates\face\registration.html:94
+#: .\templates\face\registration.html:95
 msgid "Организация"
 msgstr "Organization"
 
-#: .\templates\face\registration.html:98
+#: .\templates\face\registration.html:99
 msgid "Должность"
 msgstr "Position"
 
-#: .\templates\face\registration.html:105
+#: .\templates\face\registration.html:106
 msgid "Загрузите копию вашего паспорта"
 msgstr "Upload a copy of your passport"
 
-#: .\templates\face\registration.html:109
+#: .\templates\face\registration.html:110
 msgid "Загрузите свое фото"
 msgstr "Upload your photo"
 
-#: .\templates\face\registration.html:112
+#: .\templates\face\registration.html:113
 msgid "Taken within the last 6 months"
 msgstr ""
 
-#: .\templates\face\registration.html:113
+#: .\templates\face\registration.html:114
 msgid "Clear view of your face"
 msgstr ""
 
-#: .\templates\face\registration.html:114
+#: .\templates\face\registration.html:115
 msgid "Natural, unedited (no filters or AI)"
 msgstr ""
 
-#: .\templates\face\registration.html:115
+#: .\templates\face\registration.html:116
 msgid "Taken by someone else (not a selfie)"
 msgstr ""
 
-#: .\templates\face\registration.html:116
+#: .\templates\face\registration.html:117
 msgid "Without glasses"
 msgstr ""
 
-#: .\templates\face\registration.html:117
+#: .\templates\face\registration.html:118
 msgid "Plain white background (no shadows or textures)"
 msgstr ""
 
-#: .\templates\face\registration.html:122
-msgid "Нажимая кнопку «отправить» вы подтверждаете своё согласие обработки информации"
-msgstr "By clicking the 'send' button, you confirm your consent to the processing of information"
-
 #: .\templates\face\registration.html:126
+msgid ""
+"Нажимая кнопку «отправить» вы подтверждаете своё согласие обработки "
+"информации"
+msgstr ""
+"By clicking the 'send' button, you confirm your consent to the processing of "
+"information"
+
+#: .\templates\face\registration.html:130
 msgid "Отправить"
 msgstr "Send"
 
