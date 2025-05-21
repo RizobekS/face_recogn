@@ -3,7 +3,25 @@
 {% load i18n %}
 {% get_current_language as LANGUAGE_CODE %}
 {% block content %}
-<section class="mt-5">
+<section class="mt-3">
+    <div class="container">
+        <div class="row d-flex justify-content-center align-items-center">
+            <div class="row">
+                <div class="col-6 text-end">
+                    <img src="{% static '/face/img/Flag_of_China.png' %}" class="img-fluid" alt="flag_og_china"
+                    style="width: 350px; height: 150px;">
+                </div>
+                <div class="col-6">
+                    <img src="{% static '/face/img/Flag_of_Uzbekistan.png' %}" class="img-fluid" alt="flag_og_uzbekistan"
+                    style="width: 350px; height: 150px;">
+                </div>
+                <div class="col-12 text-center mt-3 mb-2">
+                    <h2 class="text=uppercase text-white">{% trans 'Uzbekistan - China<br> Second Interregional Forum' %}</h2>
+                    <h5 class="text-white">{% trans 'Samarkand, 2025' %}</h5>
+                </div>
+            </div>
+        </div>
+    </div>
     <div class="container-fluid text-center">
         <div class="row d-flex justify-content-around my-3">
             <div class="shadow-2-strong gradient-custom-white blur mask-custom col-12 col-sm-6 col-md-5 border border-primary rounded-7 p-2 my-2"> <!--для динамического показа фото пользователя-->
